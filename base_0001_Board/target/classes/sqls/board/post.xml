@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Post">
+
+	<!-- 게시글 개수 조회 (검색) -->
+	<select id="findPostListCnt"
+		parameterType="mnsc.base.board.dto.board.post.PostListRequestDto"
+		resultType="java.lang.Integer">
+		SELECT NVL(COUNT(*), 0)
+			FROM (SELECT *
+					FROM POST
+					WHERE DELETEAT !=1
+						<!-- 게시판 조건 -->
+						AND BOARDNO = #{boardNo}
+					) post
+			JOIN MEMBER member
+			ON post.writer = member.id
+			WHERE
+				1=1
+			<!-- 검색 조건 -->
+			<if test="searchChoice != null and searchWord != null">
+				<if test="'title'.equals(searchChoice)">
+					AND post.TITLE LIKE '%'||#{searchWord}||'%'
+				</if>
+				<if test="'content'.equals(searchChoice)">
+					AND post.CONTENT LIKE '%'||#{searchWord}||'%'
+				</if>
+				<if test="'writer'.equals(searchChoice)">
+					AND member.NAME LIKE '%'||#{searchWord}||'%'
+				</if>
+			</if>
+	</select>
+
+
+	<!-- 게시글 목록 조회 (검색 + 페이징) -->
+	<select id="findPostList"
+		parameterType="mnsc.base.board.dto.board.post.PostListRequestDto"
+		resultType="mnsc.base.board.dto.board.post.PostResponseDto">
+		SELECT *
+		FROM
+			(SELECT 
+					<!-- rownumber -->
+					ROW_NUMBER() OVER(ORDER BY post.SEQ DESC) as pagingNum,
+					post.SEQ, post.BOARDNO, post.WRITER, post.TITLE, post.CONTENT,
+					post.CREATEDDATE, post.MODIFIEDDATE, post.DELETEAT, post.READCOUNT,
+					member.NAME as writerName,
+					<!-- 댓글 개수 -->
+					(SELECT COUNT(postcomment.seq)
+						FROM POSTCOMMENT postcomment
+						WHERE postcomment.POSTNO = post.SEQ
+							AND postcomment.DELETEAT = 0
+							<!-- 게시판 조건 -->
+							AND BOARDNO = #{boardNo}
+					) as commentcount
+			FROM (SELECT *
+					FROM POST
+					WHERE DELETEAT !=1
+						<!-- 게시판 조건 -->
+						AND BOARDNO = #{boardNo}
+					) post
+			JOIN MEMBER member
+			ON post.writer = member.id
+			WHERE
+				1=1
+			<!-- 검색 조건 -->
+			<if test="searchChoice != null and searchWord != null">
+				<if test="'title'.equals(searchChoice)">
+					AND post.TITLE LIKE '%'||#{searchWord}||'%'
+				</if>
+				<if test="'content'.equals(searchChoice)">
+					AND post.CONTENT LIKE '%'||#{searchWord}||'%'
+				</if>
+				<if test="'writer'.equals(searchChoice)">
+					AND member.NAME LIKE '%'||#{searchWord}||'%'
+				</if>
+			</if>
+			ORDER BY post.SEQ DESC
+			)
+		<!-- 페이징 -->
+		WHERE pagingNum BETWEEN ${pageStart} AND ${pageEnd}
+	</select>
+	
+	<!-- 게시글 저장 -->
+	<insert id="savePost"
+		parameterType="mnsc.base.board.dto.board.post.PostRequestDto">
+		INSERT INTO POST (SEQ, BOARDNO, WRITER, TITLE, CONTENT,
+							CREATEDDATE, MODIFIEDDATE, DELETEAT, READCOUNT)
+		VALUES(SEQ_POST.NEXTVAL, #{boardNo}, #{writer}, #{title}, #{content},
+							SYSDATE, NULL,  0, 0)
+	</insert>
+	
+	<!-- 게시글 상세내용 조회 -->
+	<select id="findPostDetail"
+		parameterType="java.lang.Integer"
+		resultType="mnsc.base.board.dto.board.post.PostResponseDto">
+		SELECT post.SEQ, post.BOARDNO, post.WRITER, post.TITLE, post.CONTENT,
+				post.CREATEDDATE, post.MODIFIEDDATE, post.DELETEAT, post.READCOUNT,
+				member.NAME as writerName
+		FROM POST post
+		JOIN MEMBER member
+		ON post.writer = member.id
+		WHERE SEQ=#{seq}
+	</select>
+	
+	<!-- 게시글 수정 -->
+	<update id="updatePost"
+		parameterType="mnsc.base.board.dto.board.post.PostRequestDto">
+		UPDATE POST
+		SET TITLE = #{title},
+			CONTENT = #{content},
+			MODIFIEDDATE = SYSDATE
+		WHERE SEQ = #{seq}
+	</update>
+	
+	<!-- 게시글 삭제 -->
+	<update id="deletePost"
+		parameterType="java.lang.Integer">
+		UPDATE POST
+		SET DELETEAT = 1
+		WHERE SEQ = #{seq}	
+	</update>
+	
+	<!-- 게시글 조회수 증가 -->
+	<update id="increaseReadCount"
+		parameterType="java.lang.Integer">
+		UPDATE POST
+		SET READCOUNT = (SELECT READCOUNT
+						FROM POST
+						WHERE SEQ = #{seq})+1
+		WHERE SEQ = #{seq}	
+	</update>
+</mapper>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="PostComment">
+
+	<!-- 댓글 상세 내용 조회 -->
+	<select id="findPostComment"
+		parameterType="java.lang.Integer"
+		resultType="mnsc.base.board.dto.board.post.comment.PostCommentDto">
+		SELECT SEQ, POSTNO, WRITERID, TARGETID, CONTENT,
+				CREATEDDATE, MODIFIEDDATE, DELETEDDATE, DELETEAT,
+				GROUPNO, REF, STEP, DEPTH
+		FROM POSTCOMMENT
+		WHERE SEQ=#{seq}
+	</select>
+
+	<!-- 댓글 목록 조회 -->
+	<select id="findPostCommentList"
+		parameterType="java.lang.Integer"
+		resultType="mnsc.base.board.dto.board.post.comment.PostCommentResponseDto">
+		SELECT SEQ, POSTNO, WRITERID, TARGETID, CONTENT,
+				CREATEDDATE, MODIFIEDDATE, DELETEDDATE, DELETEAT,
+				GROUPNO, REF, STEP, DEPTH,
+				writermember.NAME as writerName,
+				(CASE WHEN postcomment.TARGETID IS NULL THEN NULL ELSE targetmember.NAME END) as targetName
+		FROM POSTCOMMENT postcomment
+		JOIN MEMBER writermember
+		ON writermember.ID = postcomment.WRITERID
+		JOIN MEMBER targetmember
+		ON targetmember.ID = NVL(postcomment.TARGETID, writermember.ID)
+		WHERE POSTNO = #{postNo}
+		AND DELETEAT != 1
+		ORDER BY GROUPNO ASC, STEP ASC 
+	</select>
+	
+	<!-- 댓글 저장 -->
+	<insert id="saveComment"
+		parameterType="mnsc.base.board.dto.board.post.comment.PostCommentRequestDto">
+		INSERT INTO POSTCOMMENT(SEQ, POSTNO, WRITERID, TARGETID, CONTENT,
+								CREATEDDATE, MODIFIEDDATE, DELETEDDATE, DELETEAT,
+								GROUPNO,
+								REF,
+								STEP,
+								DEPTH)
+		VALUES(SEQ_POSTCOMMENT.NEXTVAL, #{postNo}, #{writerId}, #{targetId}, #{content},
+								SYSDATE, NULL, NULL, 0,
+								(SELECT NVL(MAX(GROUPNO),0) FROM POSTCOMMENT WHERE POSTNO = #{postNo}) + 1,
+								NULL,
+								0,
+								0)
+	</insert>
+	
+	<!-- 답글 저장 -->
+	<insert id="saveCommentReply"
+		parameterType="mnsc.base.board.dto.board.post.comment.PostCommentRequestDto">	
+		INSERT INTO POSTCOMMENT(SEQ, POSTNO, WRITERID, TARGETID, CONTENT,
+								CREATEDDATE, MODIFIEDDATE, DELETEDDATE, DELETEAT,
+								GROUPNO,
+								REF,
+								STEP,
+								DEPTH)
+		VALUES(SEQ_POSTCOMMENT.NEXTVAL, #{postNo}, #{writerId}, #{targetId}, #{content},
+								SYSDATE, NULL, NULL, 0,
+								#{groupNo},
+								#{seq},
+								
+								<!-- 댓글에 답글을 작성한 경우 -->
+								<if test="ref == null">
+									(SELECT NVL(MAX(STEP), 0)
+									FROM POSTCOMMENT
+									WHERE GROUPNO = #{groupNo}
+									AND POSTNO = #{postNo}
+									AND DELETEAT != 1) + 1
+								</if>
+								
+								<!-- 답글에 답글을 작성한 경우 -->
+								<if test="ref != null">
+									(CASE
+											WHEN (SELECT COUNT(*)
+													FROM POSTCOMMENT
+													WHERE REF = #{seq}
+													AND POSTNO = #{postNo}
+													AND DELETEAT != 1
+													) > 0
+											<!-- 처음 답글이 아닌 경우 -->
+											THEN (
+												(CASE
+													WHEN (
+														(SELECT MAX(STEP)
+														FROM POSTCOMMENT
+														WHERE REF = #{seq}
+														AND POSTNO = #{postNo}
+														AND DELETEAT != 1)
+														!= (SELECT MAX(STEP)
+														FROM POSTCOMMENT
+														WHERE GROUPNO = #{groupNo}
+														AND POSTNO = #{postNo}
+														AND DELETEAT != 1)
+													)
+													<!-- 그룹 중간에 들어가는 경우 -->
+													THEN (
+														(SELECT MAX(STEP)
+														FROM POSTCOMMENT
+														WHERE REF = #{seq}
+														AND POSTNO = #{postNo}
+														AND GROUPNO = #{groupNo}
+														AND DELETEAT != 1) + 1
+													)
+													<!-- 그룹 마지막에 들어가는 경우 -->
+													ELSE(
+														(SELECT MAX(STEP)
+														FROM POSTCOMMENT
+														WHERE GROUPNO = #{groupNo}
+														AND POSTNO = #{postNo}
+														AND DELETEAT != 1) + 1
+													)
+												END)
+											)
+											<!-- 처음 답글인 경우 -->
+											ELSE (
+												(SELECT STEP
+												FROM POSTCOMMENT
+												WHERE SEQ = #{seq}
+												AND POSTNO = #{postNo}
+												AND DELETEAT != 1) + 1
+											)
+									END)
+								</if>,
+								#{depth} + 1)
+		<selectKey keyProperty="seq,ref,step,depth" resultType="mnsc.base.board.dto.board.post.comment.PostCommentRequestDto" order="AFTER">
+			SELECT SEQ, REF, STEP, DEPTH FROM POSTCOMMENT WHERE SEQ = (SELECT MAX(SEQ) FROM POSTCOMMENT)
+		</selectKey>
+	</insert>
+	
+	<!-- 댓글 step 변경 -->
+	<update id="updateCommentStep"
+		parameterType="java.util.HashMap">
+		UPDATE POSTCOMMENT
+		SET STEP = STEP + 1
+		WHERE STEP >= #{step}
+		AND POSTNO = #{postNo}
+		AND GROUPNO = #{groupNo}
+		AND SEQ != #{seq}
+		AND DELETEAT != 1
+	</update>
+	
+	<!-- 댓글 수정 -->
+	<update id="updateComment"
+		parameterType="mnsc.base.board.dto.board.post.comment.PostCommentRequestDto">
+		UPDATE POSTCOMMENT
+		SET CONTENT = #{content},
+			MODIFIEDDATE = SYSDATE
+		WHERE SEQ = #{seq}	
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<update id="deleteComment"
+		parameterType="java.lang.Integer">
+		UPDATE POSTCOMMENT
+		SET DELETEAT = 1,
+			DELETEDDATE = SYSDATE
+		WHERE SEQ = #{seq}	
+	</update>
+</mapper>

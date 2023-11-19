@@ -1,0 +1,427 @@
+@charset "UTF-8";
+
+/****************************** 공통 ******************************/
+
+body {
+	width: 100vw;
+	max-width: 100%;
+	padding: 0px;
+	margin: 0px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.optionButtonsWrapper{
+	width: 100%;
+	display: flex;
+	justify-content: end;
+	align-items: center;
+	margin-top: 25px;
+	margin-bottom: 10px;
+	gap: 5px;
+}
+.optionButtonsWrapper > button{
+	background-color: var(--color-black);
+	color: var(--color-gray);
+	width: fit-content;
+	height: 30px;
+	padding-left: 10px;
+	padding-right: 10px;
+	border-radius: 50px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+}
+
+.checkInputErrorWrapper {
+	margin-top: 10px;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+}
+#checkInputError{
+	color: var(--color-red);
+	font-size: 15px;
+	height: 20px;
+}
+
+/****************************** 아이콘 ******************************/
+.buttonIcon {
+	font-size: 15px !important;
+	margin-right: 5px;
+}
+
+
+/****************************** 목록(postList) ******************************/
+
+.postListContainer{
+	width: 95%;
+	display: flex;
+	flex-direction: column;
+	justify-content: end;
+	align-items: flex-start;
+}
+
+.postListTitle{
+	width: fit-content;
+	font-size: 30px;
+	cursor: pointer;
+}
+
+.contentWrapper{
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: start;
+	align-items: center;
+	height: 350px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.contentEmpty{
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.contentHeader{
+	display: flex;
+	width: 100%;
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-black);
+	border-bottom-style: solid;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	font-weight: bold;
+}
+
+.contentHeader div{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.postWrapper{
+	display: flex;
+	width: 100%;
+}
+
+/* 게시글 제목, 댓글 개수 */
+.postWrapper > div{
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+/* 게시글 제목 */
+.postWrapper > div > div:nth-child(1){
+	cursor: pointer;
+	width: fit-content;
+}
+
+.postWrapper > div > div:nth-child(1):hover{
+	font-weight: bold;
+}
+
+/* 댓글 개수 */
+.postWrapper > div > div:nth-child(2){
+	font-size: 13px;
+	color: var(--color-red);
+}
+
+/* 게시글 구분선 */
+.postWrapper:not(:last-child){
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-gray);
+	border-bottom-style: solid;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+
+/*제목*/
+.contentHeader > div:nth-child(1),
+	.postWrapper > div:nth-child(1){
+	width: 100%;
+}
+
+/*작성자*/
+.contentHeader > div:nth-child(2),
+	.postWrapper > div:nth-child(2){
+	width: 150px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+/*조회수*/
+.contentHeader > div:nth-child(3),
+	.postWrapper > div:nth-child(3){
+	width: 100px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+/* 작성일 */
+.contentHeader > div:nth-child(4),
+	.postWrapper > div:nth-child(4){
+	width: 200px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.searchWrapper{
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 5px;
+}
+.searchWrapper > input{
+	width: 80%;
+	height: 30px;
+	max-width: 300px;
+	padding: 0px;
+	border-width: 1px;
+	box-sizing: border-box;
+	border-color: var(--color-gray);
+	outline: none;
+	border-style: solid;
+}
+.searchWrapper > select{
+	width: 100px;
+	height: 30px;
+	padding: 0px;
+	border-width: 1px;
+	border-color: var(--color-gray);
+	outline: none;
+	border-style: solid;
+	font-size: 15px;
+}
+.searchWrapper > select > option:not(:last-child){
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-gray);
+	border-bottom-style: solid;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+.searchBtn{
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding-left: 5px;
+	padding-right: 5px;
+	border: 1px solid var(--color-gray);
+	background-color: var(--color-mint);
+	color: var(--color-gray);
+	height: 30px;
+	box-sizing: border-box;
+	
+}
+
+/****************************** 페이징 (paging) ******************************/
+.pagingWrapper{
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+/* 이전 페이지 버튼 */
+.pagingWrapper > div:nth-child(1) {
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+/* 다음 페이지 버튼 */
+.pagingWrapper > div:nth-last-child(1){
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+
+/* 이전, 다음 페이지 버튼 disable */
+.movePageBtnDisable{
+	cursor: default !important;
+	color: var(--color-gray);
+}
+
+
+/* 페이지 버튼 */
+.pageBtnWrapper{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+}
+.pageBtnWrapper > div{
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: var(--color-gray);
+}
+.selectPagingBtn{
+	color: var(--color-black) !important;
+}
+
+
+/****************************** 글 작성(postWrite) ******************************/
+
+.postWriteContainer{
+	width: 95%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.postWriteTitle{
+	width: 100%;
+	font-size: 30px;
+}
+
+.postWriteFormWrapper{
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.postWriteFormWrapper div{
+	display: flex;
+}
+
+.postWriteFormWrapper input{
+	border-color: var(--color-gray);
+	border-width: 1px;
+	outline: none;
+	height: 30px;
+	border-style: solid;
+	font-size: 15px;
+	font-family: monospace;
+}
+
+.postWriteFormWrapper > textarea{
+	height: 400px;
+	resize: none;
+	border-color: var(--color-gray);
+	border-width: 1px;
+	outline: none;
+	border-style: solid;
+	font-size: 15px;
+}
+
+/****************************** 글 상세(postDetail) ******************************/
+
+.postDetailContainer{
+	width: 95%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding-bottom: 30px;
+}
+
+.postDetailInfoWrapper{
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: start;
+	gap: 10px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	border: 1px solid var(--color-gray);
+	padding: 10px;
+}
+
+.postDetailInfoDivider > div{
+	background-color: var(--color-gray);
+	height: 1px;
+}
+
+.postDetailTitle{
+	font-size: 20px;
+	width: 100%;
+}
+
+.postDetailWriter{
+	min-width: 300px;
+	max-width: 300px;
+}
+
+.postDetailInfo{
+	display: flex;
+	flex-direction: column;
+	margin-left: 20px;
+	margin-top: 10px;
+	font-size: 13px;
+	color: var(--color-black);
+}
+
+.postDetailInfo > div:nth-child(2){
+	display: flex;
+	align-items: center;
+	gap: 15px;
+}
+
+/* 조회수 */
+.postDetailInfo > div:nth-child(2) > div:nth-child(2){
+	display: flex;
+	justify-content: start;
+	align-items: center;
+	font-size: 13px;
+	gap: 2px;
+}
+
+/* 조회수 아이콘 */
+.postDetailInfo > div:nth-child(2) > div:nth-child(2) > span{
+	font-size: 13px;
+}
+
+
+.postDetailContent{
+	height: content-fit;
+	white-space: pre-wrap;
+	overflow-y: auto;
+}
+
+/****************************** 글 수정(postEdit) ******************************/
+.postDetailTitle > input{
+	border-color: var(--color-gray);
+	border-width: 1px;
+	outline: none;
+	width: 100%;
+	height: 30px;
+	border-style: solid;
+	font-size: 15px;
+	font-family: monospace;
+	box-sizing: border-box;
+}
+
+.postDetailInfoWrapper > textarea {
+	height: 400px;
+	resize: none;
+	border-color: var(--color-gray);
+	border-width: 1px;
+	outline: none;
+	border-style: solid;
+	font-size: 15px;
+}

@@ -1,0 +1,9 @@
+@charset "UTF-8";
+
+/****************************** 공통 ******************************/
+:root {
+	--color-black: #252A34;
+	--color-red: #FF2E63;
+	--color-mint: #08D9D6;
+	--color-gray: #EAEAEA;
+}
